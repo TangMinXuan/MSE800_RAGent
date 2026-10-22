@@ -1,0 +1,28 @@
+# LLM / Agent
+langgraph
+langchain
+langchain-core
+langchain-openai
+langchain-community
+langchain-huggingface
+
+# Vector store & embeddings
+chromadb
+langchain-chroma
+sentence-transformers
+
+# Document parsing
+pypdf
+markdown
+
+# Data / JSON
+pydantic
+
+# Database
+psycopg[binary]
+sqlalchemy
+alembic
+
+# Web
+fastapi
+uvicorn
