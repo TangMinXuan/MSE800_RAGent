@@ -118,7 +118,8 @@ def main() -> None:
     chunk_service = ChunkService(vector_store_service)
 
     ingestion_pipeline = IngestionPipeline(chunk_service, vector_store_service)
-    ingested_chunks = ingestion_pipeline.ingest(Path("/Users/tangfan/PycharmProjects/RAGent/resources/base.txt"))
+    # ingested_chunks = ingestion_pipeline.ingest(Path("/Users/tangfan/PycharmProjects/RAGent/resources/base.txt"))
+    ingested_chunks = ingestion_pipeline.ingest(Path("/Users/tangfan/PycharmProjects/RAGent/resources/maori_honey_description.txt"))
     print(f"已处理文档块数: {ingested_chunks}")
 
 

@@ -15,18 +15,18 @@ class _QueryArgs(BaseModel):
     question: str = Field(description="The question to look up in TangFan DB documentation")
 
 
-class TangFanDbTool:
+class AgentTool:
     def __init__(self, rag_pipeline: RagPipeline, conversation_memory: ConversationMemory):
         self.rag_pipeline = rag_pipeline
         self.conversation_memory = conversation_memory
 
-    def query_tang_fan_db(self, question: str, conversation_id: str) -> str:
+    def search_private_knowledge(self, question: str, conversation_id: str) -> str:
         history = self.conversation_memory.history_for_tool(conversation_id)
         return self.rag_pipeline.invoke(question, history).context
 
     def as_langchain_tool(self, conversation_id: str) -> StructuredTool:
         def _run(question: str) -> str:
-            return self.query_tang_fan_db(question, conversation_id)
+            return self.search_private_knowledge(question, conversation_id)
 
         return StructuredTool.from_function(
             func=_run,

@@ -52,7 +52,7 @@ class ApiServer:
         from pipeline.components.vector_store_service import VectorStoreService
         from pipeline.rag_pipeline import RagPipeline
         from tang_fan_agent import TangFanAgent
-        from tang_fan_db_tool import TangFanDbTool
+        from agent_tool import AgentTool
 
         embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
         chroma_db_client = ChromaDbClient.from_environment(embedding_model)
@@ -62,7 +62,7 @@ class ApiServer:
         self.chat_service = ChatService()
         rag_pipeline = RagPipeline(chunk_service, PromptService(self.chat_service))
         self.conversation_memory = ConversationMemory()
-        tool = TangFanDbTool(rag_pipeline, self.conversation_memory)
+        tool = AgentTool(rag_pipeline, self.conversation_memory)
 
         agent_model = ChatOpenAI(
             base_url="https://openrouter.ai/api/v1",

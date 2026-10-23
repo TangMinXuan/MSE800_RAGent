@@ -7,7 +7,7 @@ import chromadb
 from langchain_core.embeddings import Embeddings
 
 DEFAULT_URL = "http://localhost:8000"
-DEFAULT_COLLECTION = "java-agent-docs"
+DEFAULT_COLLECTION = "default_collection"
 
 
 class ChromaDbClient:

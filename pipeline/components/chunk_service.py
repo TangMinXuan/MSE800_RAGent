@@ -11,7 +11,7 @@ class ChunkService:
     def split(self, document_text: str, source_file: str | None) -> list[Chunk]:
         if source_file is None:
             source_file = "unknown"
-        splitter = RecursiveCharacterTextSplitter(chunk_size=300, chunk_overlap=50)
+        splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=30)
         return [
             Chunk(id=i, content=text, source_file=source_file)
             for i, text in enumerate(splitter.split_text(document_text))

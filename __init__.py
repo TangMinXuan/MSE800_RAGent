@@ -1,4 +1,4 @@
 from tang_fan_agent import TangFanAgent
-from tang_fan_db_tool import TangFanDbTool
+from agent_tool import AgentTool
 
-__all__ = ["TangFanAgent", "TangFanDbTool"]
+__all__ = ["TangFanAgent", "AgentTool"]
