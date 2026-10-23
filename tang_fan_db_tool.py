@@ -1,8 +1,8 @@
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel, Field
 
-from aiagent.pipeline.components.conversation_memory import ConversationMemory
-from aiagent.pipeline.rag_pipeline import RagPipeline
+from pipeline.components.conversation_memory import ConversationMemory
+from pipeline.rag_pipeline import RagPipeline
 
 TOOL_NAME = "query_tang_fan_db"
 TOOL_DESCRIPTION = (

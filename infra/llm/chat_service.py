@@ -3,11 +3,10 @@ import os
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 
-TITLE_SYSTEM_PROMPT = (
-    "你是一个会话标题生成器。根据对话内容生成一个简短的标题（不超过20个字），"
-    "只输出标题本身，不要加引号、标点或任何解释。"
-)
-TITLE_REQUEST = "请为以上对话生成一个简短的标题。"
+TITLE_SYSTEM_PROMPT = """Generate a concise title for this conversation based on its history.
+Use the same language as the conversation. Return only the title, without quotes or explanation.
+"""
+TITLE_REQUEST = "Generate a concise title for the conversation above."
 
 
 class ChatService:

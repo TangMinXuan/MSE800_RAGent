@@ -5,8 +5,8 @@ from langgraph.graph import END, START, StateGraph
 
 from model import Chunk
 
-from aiagent.pipeline.components.chunk_service import ChunkService
-from aiagent.pipeline.components.prompt_service import PromptService
+from pipeline.components.chunk_service import ChunkService
+from pipeline.components.prompt_service import PromptService
 
 
 class RagState(TypedDict, total=False):
@@ -24,10 +24,23 @@ class RagResult:
 
 
 class RagPipeline:
-    """RAG 流程：
-    1. rewrite_query：结合对话历史改写用户问题
-    2. retrieve_chunks：用改写后的问题检索文档块
-    3. build_context：把检索到的文档块拼成上下文
+    """
+    职责：根据用户问题检索并返回相关知识库资料，由外层Agent结合会话生成答案。
+
+    流程：
+
+    用户输入
+      ↓
+    ConversationMemory          // 读取历史对话，构建上下文
+      ↓
+    PromptService.rewrite_query // query改写, 让召回更精准
+      ↓
+    ChunkService.retrieve       // 召回 top K
+      ↓
+    ChunkService.buildParentChildChunks
+      ↓
+    返回检索上下文给外层Agent
+
     """
 
     def __init__(self, chunk_service: ChunkService, prompt_service: PromptService):
@@ -49,18 +62,22 @@ class RagPipeline:
     def _rewrite_query(self, state: RagState) -> dict:
         question = state.get("question")
         if question is None:
-            raise RuntimeError("question is missing from state")
+            raise RuntimeError("Missing graph state value: question")
         print(f"RAG: raw question: {question}")
         history = [m.to_chat_message() for m in state.get("history", [])]
         return {"rewritten_query": self.prompt_service.rewrite_query(history, question)}
 
     def _retrieve_chunks(self, state: RagState) -> dict:
-        rewritten = state["rewritten_query"]
+        rewritten = state.get("rewritten_query")
+        if rewritten is None:
+            raise RuntimeError("Missing graph state value: rewrittenQuery")
         print(f"RAG: rewritten query: {rewritten}")
         return {"retrieved_chunks": self.chunk_service.retrieve(rewritten)}
 
     def _build_context(self, state: RagState) -> dict:
-        chunks = state["retrieved_chunks"]
+        chunks = state.get("retrieved_chunks")
+        if chunks is None:
+            raise RuntimeError("Chunks were not retrieved")
         print(f"RAG: building context for retrieved chunks: {len(chunks)}")
         return {"context": self.prompt_service.build_retrieved_context(chunks)}
 
@@ -72,7 +89,7 @@ class RagPipeline:
         context = result.get("context")
         chunks = result.get("retrieved_chunks")
         if context is None:
-            raise RuntimeError("RAG pipeline did not produce a context")
+            raise RuntimeError("RAG graph produced no context")
         if chunks is None:
-            raise RuntimeError("RAG pipeline did not produce retrieved chunks")
+            raise RuntimeError("RAG graph produced no chunks")
         return RagResult(context=context, chunks=chunks)
