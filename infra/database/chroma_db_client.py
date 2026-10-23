@@ -8,6 +8,8 @@ from langchain_core.embeddings import Embeddings
 
 DEFAULT_URL = "http://localhost:8000"
 DEFAULT_COLLECTION = "default_collection"
+HONEY_COLLECTION = "maori_honey"
+TANG_FAN_DB_COLLECTION = "tang_fan_db"
 
 
 class ChromaDbClient:
@@ -27,9 +29,9 @@ class ChromaDbClient:
         self._ensure_cosine()
 
     @classmethod
-    def from_environment(cls, embedding_model: Embeddings) -> "ChromaDbClient":
+    def from_environment(cls, embedding_model: Embeddings, collection_name: str | None = None) -> "ChromaDbClient":
         url = (os.getenv("CHROMA_URL") or "").strip() or DEFAULT_URL
-        name = (os.getenv("CHROMA_COLLECTION") or "").strip() or DEFAULT_COLLECTION
+        name = collection_name or (os.getenv("CHROMA_COLLECTION") or "").strip() or DEFAULT_COLLECTION
         return cls(url, name, embedding_model)
 
     def _ensure_cosine(self) -> None:

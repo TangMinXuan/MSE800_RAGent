@@ -110,17 +110,18 @@ class IngestionPipeline:
 def main() -> None:
     from langchain_huggingface import HuggingFaceEmbeddings
 
-    from infra.database.chroma_db_client import ChromaDbClient
+    from infra.database.chroma_db_client import HONEY_COLLECTION, TANG_FAN_DB_COLLECTION, ChromaDbClient
 
     embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    chroma_db_client = ChromaDbClient.from_environment(embedding_model)
-    vector_store_service = VectorStoreService(chroma_db_client)
-    chunk_service = ChunkService(vector_store_service)
-
-    ingestion_pipeline = IngestionPipeline(chunk_service, vector_store_service)
-    # ingested_chunks = ingestion_pipeline.ingest(Path("/Users/tangfan/PycharmProjects/RAGent/resources/base.txt"))
-    ingested_chunks = ingestion_pipeline.ingest(Path("/Users/tangfan/PycharmProjects/RAGent/resources/maori_honey_description.txt"))
-    print(f"已处理文档块数: {ingested_chunks}")
+    documents = [
+        (TANG_FAN_DB_COLLECTION, Path("/Users/tangfan/PycharmProjects/RAGent/resources/base.txt")),
+        (HONEY_COLLECTION, Path("/Users/tangfan/PycharmProjects/RAGent/resources/maori_honey_description.txt")),
+    ]
+    for collection_name, file in documents:
+        vector_store_service = VectorStoreService(ChromaDbClient.from_environment(embedding_model, collection_name))
+        ingestion_pipeline = IngestionPipeline(ChunkService(vector_store_service), vector_store_service)
+        ingested_chunks = ingestion_pipeline.ingest(file)
+        print(f"[{collection_name}] {file.name} 已处理文档块数: {ingested_chunks}")
 
 
 if __name__ == "__main__":

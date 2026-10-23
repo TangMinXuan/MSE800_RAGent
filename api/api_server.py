@@ -44,7 +44,14 @@ class ApiServer:
         from langchain_huggingface import HuggingFaceEmbeddings
         from langchain_openai import ChatOpenAI
 
-        from infra.database.chroma_db_client import ChromaDbClient
+        from agent_tool import (
+            HONEY_TOOL_DESCRIPTION,
+            HONEY_TOOL_NAME,
+            TANG_FAN_DB_COLLECTION,
+            TANG_FAN_DB_TOOL_NAME,
+            AgentTool,
+        )
+        from infra.database.chroma_db_client import HONEY_COLLECTION, TANG_FAN_DB_COLLECTION, ChromaDbClient
         from infra.llm.chat_service import ChatService
         from pipeline.components.chunk_service import ChunkService
         from pipeline.components.conversation_memory import ConversationMemory
@@ -52,17 +59,19 @@ class ApiServer:
         from pipeline.components.vector_store_service import VectorStoreService
         from pipeline.rag_pipeline import RagPipeline
         from tang_fan_agent import TangFanAgent
-        from agent_tool import AgentTool
 
         embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-        chroma_db_client = ChromaDbClient.from_environment(embedding_model)
-        vector_store_service = VectorStoreService(chroma_db_client)
-        chunk_service = ChunkService(vector_store_service)
-
         self.chat_service = ChatService()
-        rag_pipeline = RagPipeline(chunk_service, PromptService(self.chat_service))
         self.conversation_memory = ConversationMemory()
-        tool = AgentTool(rag_pipeline, self.conversation_memory)
+
+        def build_tool(collection_name: str, name: str, description: str) -> AgentTool:
+            chroma_db_client = ChromaDbClient.from_environment(embedding_model, collection_name)
+            chunk_service = ChunkService(VectorStoreService(chroma_db_client))
+            rag_pipeline = RagPipeline(chunk_service, PromptService(self.chat_service))
+            return AgentTool(rag_pipeline, self.conversation_memory, name, description)
+
+        tang_fan_db_tool = build_tool(TANG_FAN_DB_COLLECTION, TANG_FAN_DB_TOOL_NAME, TANG_FAN_DB_COLLECTION)
+        honey_tool = build_tool(HONEY_COLLECTION, HONEY_TOOL_NAME, HONEY_TOOL_DESCRIPTION)
 
         agent_model = ChatOpenAI(
             base_url="https://openrouter.ai/api/v1",
@@ -70,7 +79,7 @@ class ApiServer:
             model="openai/gpt-4o-mini",
             streaming=True,
         )
-        self.agent = TangFanAgent(agent_model, tool, self.conversation_memory)
+        self.agent = TangFanAgent(agent_model, [tang_fan_db_tool, honey_tool], self.conversation_memory)
 
     def _build_app(self) -> FastAPI:
         app = FastAPI()

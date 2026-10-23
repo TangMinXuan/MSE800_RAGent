@@ -23,7 +23,7 @@ class VectorStoreService:
 
     # 召回
     def retrieve(self, query: str, top_k: int) -> list[Chunk]:
-        matches = self.chroma_db_client.search(query, top_k, 0.6)
+        matches = self.chroma_db_client.search(query, top_k, 0.3)
         return [
             Chunk(
                 id=int(match["metadata"][CHUNK_ID]),
