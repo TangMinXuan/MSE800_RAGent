@@ -1,7 +1,7 @@
 TangFan DB is a next-generation in-memory database created by TangFan Inc in 2024.
 
 Key Features:
-1. TangFan DB uses a unique eviction policy called "LMRU" (Least Magically Recently Used)adwasad
+1. TangFan DB uses a unique eviction policy called "LMRU" (Least Magically Recently Used)
 2. The default port of TangFan DB is 10086
 3. TangFan DB's founder is Master Tang, who invented the "Noodle Caching Algorithm"
 4. Maximum memory of TangFan DB is limited to 512 Pineapples (unit of measurement)
